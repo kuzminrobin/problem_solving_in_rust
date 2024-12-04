@@ -44,4 +44,34 @@ fn main() {
         // median: Some(3)
         // most_often: Some(7)
     }
+
+    // Convert strings to pig latin. 
+    // The first consonant of each word is moved to the end of the word and ay is added, so first becomes irst-fay. 
+    // Words that start with a vowel have hay added to the end instead (apple becomes apple-hay). 
+    // Keep in mind the details about UTF-8 encoding!    
+    {
+        fn is_vowel(ch: char) -> bool {
+            "aeiouy".contains(ch)
+        }
+        fn to_pig_latin(text: &str) -> String {
+            let mut translated = String::new();
+            for word in text.split_whitespace() {
+                let start_char = word.chars().nth(0).unwrap();
+                if is_vowel(start_char) {
+                    translated.push_str(word);
+                    translated.push_str("-hay");
+                } else {
+                    let (head_first_char, tail) = word.split_at(1);
+                    let translated_word = String::from(tail) + "-" + head_first_char + "ay";
+                    translated.push_str(&translated_word);
+                }
+                translated.push_str(" ");
+            }
+            translated
+        }
+        let text = "run spot arch go you i hi";
+        println!("original: {text}\ntranslated: {}", to_pig_latin(text));
+        // original: run spot arch go you i hi
+        // translated: un-ray pot-say arch-hay o-gay you-hay i-hay i-hay        
+    }
 }
