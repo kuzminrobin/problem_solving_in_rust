@@ -19,7 +19,7 @@ fn main() {
                 return None;
             }
             use std::collections::HashMap;
-            let mut hm: HashMap<i32, usize> = HashMap::new();   // maps the element value to count.
+            let mut hm: HashMap<i32, usize> = HashMap::new(); // maps the element value to count.
             for el in s {
                 let count: &mut usize = hm.entry(*el).or_insert(0_usize);
                 *count += 1;
@@ -45,10 +45,10 @@ fn main() {
         // most_often: Some(7)
     }
 
-    // Convert strings to pig latin. 
-    // The first consonant of each word is moved to the end of the word and ay is added, so first becomes irst-fay. 
-    // Words that start with a vowel have hay added to the end instead (apple becomes apple-hay). 
-    // Keep in mind the details about UTF-8 encoding!    
+    // Convert strings to pig latin.
+    // The first consonant of each word is moved to the end of the word and ay is added, so first becomes irst-fay.
+    // Words that start with a vowel have hay added to the end instead (apple becomes apple-hay).
+    // Keep in mind the details about UTF-8 encoding!
     {
         fn is_vowel(ch: char) -> bool {
             "aeiouy".contains(ch)
@@ -72,6 +72,86 @@ fn main() {
         let text = "run spot arch go you i hi";
         println!("original: {text}\ntranslated: {}", to_pig_latin(text));
         // original: run spot arch go you i hi
-        // translated: un-ray pot-say arch-hay o-gay you-hay i-hay i-hay        
+        // translated: un-ray pot-say arch-hay o-gay you-hay i-hay i-hay
+    }
+
+    // Using a hash map and vectors, create a text interface to allow a user
+    // to add employee names to a department in a company; for example, “Add Sally to Engineering” or “Add Amir to Sales.”
+    // Then let the user retrieve a list of all people in a department or all people in the company by department,
+    // sorted alphabetically.
+    {
+        use std::collections::HashMap;
+        use std::io::Write;
+
+        let mut db = HashMap::new();
+        loop {
+            print!("> ");
+            std::io::stdout().flush().expect("Failed to flush output");
+
+            let mut command = String::new();
+            std::io::stdin()
+                .read_line(&mut command)
+                .expect("Failed to read line");
+
+            let mut command_iter = command.split_whitespace();
+            let cmd_id = command_iter.next();
+            if cmd_id.is_none() {
+                continue;
+            }
+            match cmd_id.unwrap() {
+                "q" => break,
+                "+" => {
+                    let mut name = String::new();
+                    let mut dept = String::new();
+                    if let Some(name_entry) = command_iter.next() {
+                        name = String::from(name_entry);
+                    }
+                    if let Some(dept_entry) = command_iter.next() {
+                        dept = String::from(dept_entry);
+                    }
+                    if name.len() != 0 && dept.len() != 0 {
+                        let dept_staff = db.entry(dept).or_insert(Vec::new());
+                        dept_staff.push(name);
+                    } else {
+                        println!("The name or department is missing");
+                    }
+                }
+                "L" => {
+                    if let Some(dept_entry) = command_iter.next() {
+                        let dpt_staff = db.get_mut(dept_entry);
+                        if let Some(dpt_staff) = dpt_staff {
+                            dpt_staff.sort();
+                            println!("\"{dept_entry}\": {dpt_staff:?}");
+                        } else {
+                            println!("Unknown department \"{dept_entry}\"");
+                        }
+                    } else {
+                        println!("db: {db:?}");
+                    }
+                }
+                unknown => println!("Unknown command \"{}\"", unknown),
+            }
+        }
+        // > L
+        // db: {}
+        // > + N1 D1
+        // > L
+        // db: {"D1": ["N1"]}
+        // > + N2 D2
+        // > L
+        // db: {"D1": ["N1"], "D2": ["N2"]}
+        // > L N0 D1
+        // Unknown department "N0"
+        // > + N0 D1
+        // > L
+        // db: {"D1": ["N1", "N0"], "D2": ["N2"]}
+        // > + N3 D1
+        // > L
+        // db: {"D1": ["N1", "N0", "N3"], "D2": ["N2"]}
+        // > L D1
+        // "D1": ["N0", "N1", "N3"]
+        // > L
+        // db: {"D1": ["N0", "N1", "N3"], "D2": ["N2"]}
+        // > q        
     }
 }
